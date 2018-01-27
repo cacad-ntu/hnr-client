@@ -1,11 +1,10 @@
 /* Constants and Global Variable */
 const OFFSET=10;
-const RADIUS=20;
 
 const DESCRIPTION = {
-	1: "HQ",
+	1: "H",
 	2: "T",
-	3: "U"
+	3: "u"
 }
 
 const COLOR = {
@@ -52,7 +51,8 @@ ws.onmessage = function(e) {
 			$(document).ready(function() {
 				var {row, col} = payload;
 				player_id = payload.player_id;
-				hexagonGrid = new HexagonGrid("HexCanvas", RADIUS);
+				var radius = getRadius(row, col);
+				hexagonGrid = new HexagonGrid("HexCanvas", radius);
 				initialize(row, col);
 			})
 			break;
@@ -77,6 +77,14 @@ function initialize(rows, cols) {
 	htmlCanvas.width = hexagonGrid.side * (cols + 1) + OFFSET;
 	htmlCanvas.height = hexagonGrid.height * (rows + 1) + OFFSET;
 	hexagonGrid.drawHexGrid(rows, cols, OFFSET, OFFSET, false);
+}
+
+function getRadius(rows, cols) {
+	var h = window.innerHeight - 5*OFFSET;
+	var w = window.innerWidth - 5*OFFSET;
+	var r1 = h / (Math.sqrt(3) * rows);
+	var r2 = w / (2 * cols);
+	return Math.min(r1, r2);
 }
 
 function drawUnits(player_id, map, player_map) {
