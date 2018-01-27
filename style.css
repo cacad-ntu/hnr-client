@@ -15,7 +15,7 @@ html, body {
 		justify-content: flex-start;
 }
 
-#statusBar {
+#sideBar {
 		font-family: 'VT123', monospace;
 		display: flex;
 		position: fixed;
@@ -29,7 +29,11 @@ html, body {
 		justify-content: flex-start;
 }
 
-#hq > div, #tower > div, #attacking > div {
+#statusBar {
+	border-top: 1px solid #333;
+}
+
+#leaderboard > div, #hq > div, #tower > div, #attacking > div {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -38,4 +42,12 @@ html, body {
 .title {
 	width: 100%;
 	border-bottom: 1px solid #333;
+}
+
+.leaderboardSection {
+	margin-bottom: 50px;
+}
+
+.alertRed {
+	color:#D32F2F;
 }

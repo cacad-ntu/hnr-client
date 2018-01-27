@@ -40,7 +40,7 @@ ws.onopen = function() {
 
 ws.onmessage = function(e) {
 	var {type, payload} = JSON.parse(e.data);
-	console.log(type)
+	// console.log(type)
 
 	switch(type) {
 			case 0:
@@ -52,10 +52,10 @@ ws.onmessage = function(e) {
 			})
 			break;
 		case 1:
-			var {map, player_map, towers, hqs, tower_max_hp, hq_max_hp} = payload;
+			var {map, player_map, towers, hqs, tower_max_hp, hq_max_hp, points, players} = payload;
 			currentMap = map;
-			drawUnits(map, player_map);
-			renderStatusBar(player_id, hqs, hq_max_hp, towers, tower_max_hp);
+			drawUnits(player_id, map, player_map);
+			renderSideBar(player_id, hqs, hq_max_hp, towers, tower_max_hp, points, players);
 			break;
 		case 2:
 			alert("DEAD");
@@ -74,8 +74,8 @@ function initialize(rows, cols) {
 	hexagonGrid.drawHexGrid(rows, cols, OFFSET, OFFSET, false);
 }
 
-function drawUnits(map, player_map) {
-    console.log("DRAW UNITS", player_map)
+function drawUnits(player_id, map, player_map) {
+    // console.log("DRAW UNITS", player_map)
 	for (var c=0; c < map.length; c++) {
 		for (var r = 0; r < map[c].length; r++) {
 					if(!player_map[c][r]){
@@ -87,7 +87,7 @@ function drawUnits(map, player_map) {
 			if (buildingType !== 0) {
 				hexagonGrid.drawHexAtColRow(c, r, "#FFF");
 				var alpha = 0.3;
-				if (buildingType === 3 && units.indexOf(uid) > -1) {
+				if (buildingType === 3 && units.indexOf(uid) > -1 && owner === player_id) {
 					alpha = 0.8;
 				}
 				hexagonGrid.drawHexAtColRow(c, r, convertColor(COLOR[owner], alpha), DESCRIPTION[buildingType])
@@ -302,7 +302,7 @@ HexagonGrid.prototype.isPointInTriangle = function isPointInTriangle(pt, v1, v2,
 };
 
 HexagonGrid.prototype.clickEvent = function (e) {
-		console.log(e)
+		// console.log(e)
     var mouseX = e.pageX;
     var mouseY = e.pageY;
 
@@ -323,7 +323,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 					}
 				}
 
-				console.log(units);
+				// console.log(units);
     }
 };
 
@@ -338,7 +338,7 @@ HexagonGrid.prototype.rightClickEvent = function(e) {
 		var tile = this.getSelectedTile(localX, localY);
 		if (tile.column >= 0 && tile.row >= 0) {
 			dest = [tile.column, tile.row];
-			console.log({player_id, units, dest});
+			// console.log({player_id, units, dest});
 			ws.send(JSON.stringify({player_id, units, dest}))
 			//TODO: Handle Right Click
 		}
@@ -408,7 +408,7 @@ HexagonGrid.prototype.mouseUpEvent = function(e) {
     }
 
     drag = false;
-    console.log("selected", units);
+    // console.log("selected", units);
 };
 
 HexagonGrid.prototype.mouseMoveEvent = function(e) {
