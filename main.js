@@ -10,7 +10,7 @@ const DESCRIPTION = {
 
 const COLOR = {
 	'FOW': "#333333",
-	'-1': "#DDDDDD",
+	'-1': "#5A3A31",
 	0: "#FF0084",
 	1: "#B400FF",
 	2: "#040BA4",
@@ -193,7 +193,7 @@ HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText) {
     this.context.stroke();
 
     if (debugText) {
-        this.context.font = "12px";
+        this.context.font = "16px";
         this.context.fillStyle = "#000";
         this.context.fillText(debugText, x0 + (this.width / 2) - (this.width/4), y0 + (this.height - 5));
     }
