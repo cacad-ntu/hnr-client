@@ -1,7 +1,6 @@
-const RADIUS=25;
-const ROWS=50;
-const COLS=50;
 const OFFSET=10;
+const RADIUS=20;
+
 const DESCRIPTION = {
 	1: "HQ",
 	2: "T",
@@ -9,6 +8,7 @@ const DESCRIPTION = {
 }
 
 const COLOR = {
+	'FOW': "#DDD",
 	'-1': "#333",
 	0: "#333",
 	1: "#123123",
@@ -20,47 +20,58 @@ const COLOR = {
 
 /* Websocket Connection */
 var ws = new WebSocket("ws://localhost:8888/ws");
+var hexagonGrid;
 
-$(document).ready(function() {
-	var hexagonGrid = new HexagonGrid("HexCanvas", RADIUS);
+ws.onopen = function() {
+	console.log("Socket opened")
+}
 
-	ws.onopen = function() {
-		initialize();
+ws.onmessage = function(e) {
+	var {type, payload} = JSON.parse(e.data);
+	console.log(type)
+
+	switch(type) {
+		case 0:
+			$(document).ready(function() {
+				var {row, col} = payload;
+				hexagonGrid = new HexagonGrid("HexCanvas", RADIUS);
+				initialize(row, col);
+			})
+			break;
+		case 1:
+			var {map, player_map} = payload;
+			drawUnits(map, player_map);
+			break;
+		case 2:
+			alert("DEAD");
 	}
-
-	ws.onmessage = function(e) {
-		var {type, payload} = JSON.parse(e.data);
-
-		switch(type) {
-			case 1:
-				var {map, player_map} = payload;
-				drawUnits(map, player_map);
-		}
-	}
+}
 
 
-	/* Game */
-	//TODO
+/* Game */
+//TODO
 
-	function initialize() {
-		var htmlCanvas = document.getElementById("HexCanvas");
-		var context = htmlCanvas.getContext('2d');
-		htmlCanvas.width = hexagonGrid.side * (COLS + 1) + OFFSET;
-		htmlCanvas.height = hexagonGrid.height * (ROWS + 1) + OFFSET;
-		hexagonGrid.drawHexGrid(ROWS, COLS, OFFSET, OFFSET, false);
-	}
+function initialize(rows, cols) {
+	var htmlCanvas = document.getElementById("HexCanvas");
+	var context = htmlCanvas.getContext('2d');
+	htmlCanvas.width = hexagonGrid.side * (cols + 1) + OFFSET;
+	htmlCanvas.height = hexagonGrid.height * (rows + 1) + OFFSET;
+	hexagonGrid.drawHexGrid(rows, cols, OFFSET, OFFSET, false);
+}
 
-	function drawUnits(map, player_map) {
-		for (var c=0; c < map.length; c++) {
-			for (var r = 0; r < map[c].length; r++) {
-				var [buildingType, owner, uid] = map[c][r];
-				if (player_map[c][r] && buildingType !== 0) {
-					hexagonGrid.drawHexAtColRow(c, r, COLOR[owner], DESCRIPTION[buildingType])
-				}
+function drawUnits(map, player_map) {
+	for (var c=0; c < map.length; c++) {
+		for (var r = 0; r < map[c].length; r++) {
+			var [buildingType, owner, uid] = map[c][r];
+			if (buildingType !== 0) {
+				hexagonGrid.drawHexAtColRow(c, r, COLOR[owner], DESCRIPTION[buildingType])
+			}
+			else {
+				hexagonGrid.drawHexAtColRow(c, r, "#FFF");
 			}
 		}
 	}
-})
+}
 
 /* Game Functions */
 function move() {
