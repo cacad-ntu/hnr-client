@@ -27,15 +27,17 @@ html, body {
 		margin-left: 30px;
 		flex-direction: column;
 		justify-content: flex-start;
+		align-items: space-between;
 }
 
 #statusBar {
 	border-top: 1px solid #333;
+	padding-top: 30px;
 }
 
 #leaderboard > div, #hq > div, #tower > div, #attacking > div {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: space-between;
 }
 
@@ -50,4 +52,8 @@ html, body {
 
 .alertRed {
 	color:#D32F2F;
+}
+
+.section {
+	min-height: 150px;
 }

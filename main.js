@@ -11,12 +11,17 @@ const DESCRIPTION = {
 const COLOR = {
 	'FOW': "#333333",
 	'-1': "#5A3A31",
-	0: "#FF0084",
-	1: "#B400FF",
-	2: "#040BA4",
-	3: "#04A444",
-	4: "#FFA800",
-	5: "#001572"
+	0: "#B71C1C",
+	1: "#4A148C",
+	2: "#0D47A1",
+	3: "#1B5E20",
+	4: "#F57F17",
+	5: "#827717",
+	6: "#00E5FF",
+	7: "#880E4F",
+	8: "#00796B",
+	9: "#76FF03",
+
 }
 
 var player_id, dest;
@@ -90,7 +95,7 @@ function drawUnits(player_id, map, player_map) {
 				if (buildingType === 3 && units.indexOf(uid) > -1 && owner === player_id) {
 					alpha = 0.8;
 				}
-				hexagonGrid.drawHexAtColRow(c, r, convertColor(COLOR[owner], alpha), DESCRIPTION[buildingType])
+				hexagonGrid.drawHexAtColRow(c, r, convertColor(COLOR[owner%Object.keys(COLOR).length], alpha), DESCRIPTION[buildingType])
 			}
 			else {
 				hexagonGrid.drawHexAtColRow(c, r, "#FFF");

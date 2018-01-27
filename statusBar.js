@@ -1,7 +1,6 @@
 var attackingList = [];
 
 function renderSideBar(playerId, hqList, hqMaxHP, towerList, towerMaxHP, points, players) {
-	console.log(players);
 	clear();
 	renderLeaderboard(players);
 	renderPlayer(playerId, points);
@@ -15,6 +14,7 @@ function renderLeaderboard(players) {
 		var divNode = document.createElement("div")
 		var playerNameNode = document.createElement("span");
 		playerNameNode.textContent = counter + ". " + "Player #" + player.player_id;
+		playerNameNode.style.color = COLOR[player.player_id%10];
 		var	pointNode = document.createElement("span");
 		pointNode.textContent = player.points;
 		divNode.appendChild(playerNameNode);
@@ -42,6 +42,7 @@ function renderStatusBar(playerId, hqList, hqMaxHP, towerList, towerMaxHP) {
 function renderPlayer(playerId, points) {
 	var playerNode = document.getElementById("player");
 	playerNode.innerHTML = "Player #" + player_id;
+	playerNode.style.color = COLOR[player_id%Object.keys(COLOR).length];
 	var pointsNode = document.getElementById("points");
 	pointsNode.innerHTML = "Points: " + points;
 }
@@ -60,7 +61,6 @@ function renderHQ(playerId, hq, hqMaxHP) {
 }
 
 function renderTower(playerId, tower, towerMaxHP) {
-	console.log(tower);
 	if (playerId !== tower.playerId) {
 		if (tower.isAttacked && tower.attacker === playerId) {
 			tower["type"] = "tower";
@@ -74,7 +74,6 @@ function renderTower(playerId, tower, towerMaxHP) {
 }
 
 function renderAttacking(playerId, item, maxHP) {
-	// console.log(item)
 	generateProgressBar("attacking", item.type, item, maxHP);
 }
 
