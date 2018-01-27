@@ -19,10 +19,8 @@ const COLOR = {
 	5: "#151242"
 }
 
-var player_id;
+var player_id, dest;
 var units = [];
-var dest;
-var currentMap;
 
 var rect = {};
 var drag = false;
@@ -45,7 +43,7 @@ ws.onmessage = function(e) {
 	console.log(type)
 
 	switch(type) {
-		case 0:
+			case 0:
 			$(document).ready(function() {
 				var {row, col} = payload;
 				player_id = payload.player_id;
@@ -54,9 +52,10 @@ ws.onmessage = function(e) {
 			})
 			break;
 		case 1:
-			var {map, player_map} = payload;
+			var {map, player_map, towers, hqs, tower_max_hp, hq_max_hp} = payload;
 			currentMap = map;
 			drawUnits(map, player_map);
+			renderStatusBar(player_id, hqs, hq_max_hp, towers, tower_max_hp);
 			break;
 		case 2:
 			alert("DEAD");
@@ -288,6 +287,7 @@ HexagonGrid.prototype.isPointInTriangle = function isPointInTriangle(pt, v1, v2,
 };
 
 HexagonGrid.prototype.clickEvent = function (e) {
+		console.log(e)
     var mouseX = e.pageX;
     var mouseY = e.pageY;
 
