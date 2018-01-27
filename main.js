@@ -1,3 +1,4 @@
+/* Constants and Global Variable */
 const OFFSET=10;
 const RADIUS=20;
 
@@ -11,12 +12,17 @@ const COLOR = {
 	'FOW': "#DDD",
 	'-1': "#333",
 	0: "#333",
-	1: "#123123",
+	1: "#151231",
 	2: "#125634",
 	3: "#456789",
 	4: "#873423",
 	5: "#151242"
 }
+
+var player_id;
+var units = [];
+var dest;
+var currentMap;
 
 /* Websocket Connection */
 var ws = new WebSocket("ws://localhost:8888/ws");
@@ -34,12 +40,14 @@ ws.onmessage = function(e) {
 		case 0:
 			$(document).ready(function() {
 				var {row, col} = payload;
+				player_id = payload.player_id;
 				hexagonGrid = new HexagonGrid("HexCanvas", RADIUS);
 				initialize(row, col);
 			})
 			break;
 		case 1:
 			var {map, player_map} = payload;
+			currentMap = map;
 			drawUnits(map, player_map);
 			break;
 		case 2:
@@ -270,19 +278,25 @@ HexagonGrid.prototype.clickEvent = function (e) {
     var localY = mouseY - this.canvasOriginY;
 
     var tile = this.getSelectedTile(localX, localY);
-    if (tile.column >= 0 && tile.row >= 0) {
-				//TODO: Handle Left Click
-				ws.send(tile)
-        // var drawy = tile.column % 2 == 0 ? (tile.row * this.height) + this.canvasOriginY + 6 : (tile.row * this.height) + this.canvasOriginY + 6 + (this.height / 2);
-        // var drawx = (tile.column * this.side) + this.canvasOriginX;
-        // this.drawHex(drawx, drawy - 6, "rgba(110,110,70,0.3)", "");
+		var c = tile.column;
+		var r = tile.row;
+    if (c >= 0 && r >= 0) {
+				var clicked = currentMap[c][r];
+				if (clicked[1] === player_id) {
+					if (units.indexOf(clicked[2]) === -1) {
+						units = [...units, currentMap[c][r][2]];
+					}
+					else {
+						units.splice(units.indexOf(clicked[2]), 1);
+					}
+				}
+
+				console.log(units);
     } 
 };
 
 HexagonGrid.prototype.rightClickEvent = function(e) {
 		e.preventDefault();
-		console.log(e)
-		
 		var mouseX = e.pageX;
 		var mouseY = e.pageY;
 
@@ -290,9 +304,10 @@ HexagonGrid.prototype.rightClickEvent = function(e) {
 		var localY = mouseY - this.canvasOriginX;
 		
 		var tile = this.getSelectedTile(localX, localY);
-		return tile;
 		if (tile.column >= 0 && tile.row >= 0) {
-			ws.send(tile)
+			dest = [tile.column, tile.row];
+			console.log({player_id, units, dest});
+			ws.send(JSON.stringify({player_id, units, dest}))
 			//TODO: Handle Right Click
 		}
 }
