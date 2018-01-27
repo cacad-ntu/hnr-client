@@ -24,6 +24,14 @@ var units = [];
 var dest;
 var currentMap;
 
+var rect = {};
+var drag = false;
+
+var mouseDownTileColumn;
+var mouseDownTileRow;
+var mouseUpTileColumn;
+var mouseUpTileRow;
+
 /* Websocket Connection */
 var ws = new WebSocket("ws://localhost:8888/ws");
 var hexagonGrid;
@@ -68,8 +76,14 @@ function initialize(rows, cols) {
 }
 
 function drawUnits(map, player_map) {
+    console.log("DRAW UNITS", player_map)
 	for (var c=0; c < map.length; c++) {
 		for (var r = 0; r < map[c].length; r++) {
+            if(!player_map[c][r]){
+                hexagonGrid.drawHexAtColRow(c, r, "#666");
+                continue;
+            }
+
 			var [buildingType, owner, uid] = map[c][r];
 			if (buildingType !== 0) {
 				hexagonGrid.drawHexAtColRow(c, r, COLOR[owner], DESCRIPTION[buildingType])
@@ -100,15 +114,18 @@ function HexagonGrid(canvasId, radius) {
 
     this.canvasOriginX = 0;
     this.canvasOriginY = 0;
-    
-    this.canvas.addEventListener("click", this.clickEvent.bind(this), false);
-		this.canvas.addEventListener("contextmenu", this.rightClickEvent.bind(this), false);
+
+    // this.canvas.addEventListener("click", this.clickEvent.bind(this), false);
+    this.canvas.addEventListener("contextmenu", this.rightClickEvent.bind(this), false);
+    this.canvas.addEventListener("mousedown", this.mouseDownEvent.bind(this), false);
+    this.canvas.addEventListener("mouseup", this.mouseUpEvent.bind(this), false);
+    this.canvas.addEventListener("mousemove", this.mouseMoveEvent.bind(this), false);
 };
 
 HexagonGrid.prototype.drawHexGrid = function (rows, cols, originX, originY, isDebug) {
     this.canvasOriginX = originX;
     this.canvasOriginY = originY;
-    
+
     var currentHexX;
     var currentHexY;
     var debugText = "";
@@ -177,7 +194,7 @@ HexagonGrid.prototype.getRelativeCanvasOffset = function() {
             x += layoutElement.offsetLeft;
             y += layoutElement.offsetTop;
         } while (layoutElement = layoutElement.offsetParent);
-        
+
         return { x: x, y: y };
     }
 }
@@ -198,11 +215,11 @@ HexagonGrid.prototype.getSelectedTile = function(mouseX, mouseY) {
             : Math.floor(((mouseY + (this.height * 0.5)) / this.height)) - 1);
 
 
-    //Test if on left side of frame            
+    //Test if on left side of frame
     if (mouseX > (column * this.side) && mouseX < (column * this.side) + this.width - this.side) {
 
 
-        //Now test which of the two triangles we are in 
+        //Now test which of the two triangles we are in
         //Top left triangle points
         var p1 = new Object();
         p1.x = column * this.side;
@@ -278,8 +295,8 @@ HexagonGrid.prototype.clickEvent = function (e) {
     var localY = mouseY - this.canvasOriginY;
 
     var tile = this.getSelectedTile(localX, localY);
-		var c = tile.column;
-		var r = tile.row;
+	var c = tile.column;
+	var r = tile.row;
     if (c >= 0 && r >= 0) {
 				var clicked = currentMap[c][r];
 				if (clicked[1] === player_id) {
@@ -292,7 +309,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 				}
 
 				console.log(units);
-    } 
+    }
 };
 
 HexagonGrid.prototype.rightClickEvent = function(e) {
@@ -302,7 +319,7 @@ HexagonGrid.prototype.rightClickEvent = function(e) {
 
 		var localX = mouseX - this.canvasOriginX;
 		var localY = mouseY - this.canvasOriginX;
-		
+
 		var tile = this.getSelectedTile(localX, localY);
 		if (tile.column >= 0 && tile.row >= 0) {
 			dest = [tile.column, tile.row];
@@ -310,5 +327,84 @@ HexagonGrid.prototype.rightClickEvent = function(e) {
 			ws.send(JSON.stringify({player_id, units, dest}))
 			//TODO: Handle Right Click
 		}
-}
+};
 
+HexagonGrid.prototype.mouseDownEvent = function(e) {
+    // console.log("Mouse Down Event", e);
+    if(e.which != 1){
+        return;
+    }
+
+    var mouseX = e.pageX;
+    var mouseY = e.pageY;
+
+    var localX = mouseX - this.canvasOriginX;
+    var localY = mouseY - this.canvasOriginY;
+
+    var tile = this.getSelectedTile(localX, localY);
+    mouseDownTileColumn = tile.column;
+    mouseDownTileRow = tile.row;
+
+    rect.startX = e.pageX - this.offsetLeft;
+    rect.startY = e.pageY - this.offsetTop;
+    drag = true;
+};
+
+HexagonGrid.prototype.mouseUpEvent = function(e) {
+    // console.log("Mouse Up Event:", e);
+    if(e.which != 1){
+        return;
+    }
+
+    if(!e.ctrlKey){
+        units = [];
+    }
+
+    var mouseX = e.pageX;
+    var mouseY = e.pageY;
+
+    var localX = mouseX - this.canvasOriginX;
+    var localY = mouseY - this.canvasOriginY;
+
+    var tile = this.getSelectedTile(localX, localY);
+
+    if (mouseDownTileColumn > tile.column){
+        mouseUpTileColumn = mouseDownTileColumn;
+        mouseDownTileColumn = tile.column;
+    } else {
+        mouseUpTileColumn = tile.column;
+    }
+
+    if (mouseDownTileRow > tile.row){
+        mouseUpTileRow = mouseDownTileRow;
+        mouseDownTileRow = tile.row;
+    } else {
+        mouseUpTileRow = tile.row;
+    }
+
+    for (var c = mouseDownTileColumn; c <= mouseUpTileColumn; c++){
+        for (var r = mouseDownTileRow; r <= mouseUpTileRow; r++){
+            if (currentMap[c][r][0] == 3 && currentMap[c][r][1] == player_id){
+                if (units.indexOf(currentMap[c][r][2]) === -1) {
+                    units = [...units, currentMap[c][r][2]];
+                }
+            }
+        }
+    }
+
+    drag = false;
+    console.log("selected", units);
+};
+
+HexagonGrid.prototype.mouseMoveEvent = function(e) {
+    if (drag) {
+        rect.w = (e.pageX - this.offsetLeft) - rect.startX;
+        rect.h = (e.pageY - this.offsetTop) - rect.startY ;
+        // this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
+        this.draw();
+    }
+};
+
+HexagonGrid.prototype.draw = function(e) {
+    this.context.fillRect(rect.startX, rect.startY, rect.w, rect.h);
+};
