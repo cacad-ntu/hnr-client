@@ -9,14 +9,14 @@ const DESCRIPTION = {
 }
 
 const COLOR = {
-	'FOW': "#DDD",
-	'-1': "#333",
-	0: "#333",
-	1: "#151231",
-	2: "#125634",
-	3: "#456789",
-	4: "#873423",
-	5: "#151242"
+	'FOW': "#333333",
+	'-1': "#DDDDDD",
+	0: "#FF0084",
+	1: "#B400FF",
+	2: "#040BA4",
+	3: "#04A444",
+	4: "#FFA800",
+	5: "#001572"
 }
 
 var player_id, dest;
@@ -78,14 +78,19 @@ function drawUnits(map, player_map) {
     console.log("DRAW UNITS", player_map)
 	for (var c=0; c < map.length; c++) {
 		for (var r = 0; r < map[c].length; r++) {
-            if(!player_map[c][r]){
-                hexagonGrid.drawHexAtColRow(c, r, "#666");
-                continue;
-            }
-
+					if(!player_map[c][r]){
+							hexagonGrid.drawHexAtColRow(c, r, "#FFF");
+							hexagonGrid.drawHexAtColRow(c, r, convertColor(COLOR['FOW'], 0.7));
+							continue;
+					}
 			var [buildingType, owner, uid] = map[c][r];
 			if (buildingType !== 0) {
-				hexagonGrid.drawHexAtColRow(c, r, COLOR[owner], DESCRIPTION[buildingType])
+				hexagonGrid.drawHexAtColRow(c, r, "#FFF");
+				var alpha = 0.3;
+				if (buildingType === 3 && units.indexOf(uid) > -1) {
+					alpha = 0.8;
+				}
+				hexagonGrid.drawHexAtColRow(c, r, convertColor(COLOR[owner], alpha), DESCRIPTION[buildingType])
 			}
 			else {
 				hexagonGrid.drawHexAtColRow(c, r, "#FFF");
@@ -95,8 +100,18 @@ function drawUnits(map, player_map) {
 }
 
 /* Game Functions */
-function move() {
-	//TODO
+function hexToRGB(hex) {
+		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+		return result ? {
+							r: parseInt(result[1], 16),
+							g: parseInt(result[2], 16),
+							b: parseInt(result[3], 16)
+					} : null;
+}
+
+function convertColor(hex, alpha) {
+	var rgb = hexToRGB(hex);
+	return "rgba(" + rgb.r + ", " + rgb.g + ", " + rgb.b + ", " + alpha + ")"
 }
 
 /* Hexagrid */
@@ -178,8 +193,8 @@ HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText) {
     this.context.stroke();
 
     if (debugText) {
-        this.context.font = "8px";
-        this.context.fillStyle = "#999";
+        this.context.font = "12px";
+        this.context.fillStyle = "#000";
         this.context.fillText(debugText, x0 + (this.width / 2) - (this.width/4), y0 + (this.height - 5));
     }
 };
