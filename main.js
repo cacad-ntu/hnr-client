@@ -57,10 +57,21 @@ ws.onmessage = function(e) {
 			})
 			break;
 		case 1:
-			var {map, player_map, towers, hqs, tower_max_hp, hq_max_hp, points, players} = payload;
+			var {
+				map, 
+				player_map, 
+				towers, 
+				hqs, 
+				tower_max_hp, 
+				hq_max_hp, 
+				points, 
+				players,
+				population,
+				capacity
+			} = payload;
 			currentMap = map;
 			drawUnits(player_id, map, player_map);
-			renderSideBar(player_id, hqs, hq_max_hp, towers, tower_max_hp, points, players);
+			renderSideBar(player_id, hqs, hq_max_hp, towers, tower_max_hp, points, players, population, capacity);
 			break;
 		case 2:
 			alert("DEAD");

@@ -1,9 +1,9 @@
 var attackingList = [];
 
-function renderSideBar(playerId, hqList, hqMaxHP, towerList, towerMaxHP, points, players) {
+function renderSideBar(playerId, hqList, hqMaxHP, towerList, towerMaxHP, points, players, population, capacity) {
 	clear();
 	renderLeaderboard(players);
-	renderPlayer(playerId, points);
+	renderPlayer(playerId, points, population, capacity);
 	renderStatusBar(playerId, hqList, hqMaxHP, towerList, towerMaxHP)
 }
 
@@ -39,12 +39,17 @@ function renderStatusBar(playerId, hqList, hqMaxHP, towerList, towerMaxHP) {
 	})
 }
 
-function renderPlayer(playerId, points) {
+function renderPlayer(playerId, points, population, capacity) {
 	var playerNode = document.getElementById("player");
 	playerNode.innerHTML = "Player #" + player_id;
 	playerNode.style.color = COLOR[player_id%Object.keys(COLOR).length];
 	var pointsNode = document.getElementById("points");
 	pointsNode.innerHTML = "Points: " + points;
+	var unitsNode = document.getElementById("units");
+	unitsNode.innerHTML = "Total Units: " + population + " (max. " + capacity + ")";
+	if (population === capacity) {
+		unitsNode.className = "alertRed";
+	}
 }
 
 function renderHQ(playerId, hq, hqMaxHP) {
