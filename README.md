@@ -15,5 +15,5 @@ Client side application for Hive IO (Hack and Roll 2018).
 
 ## Reference
 
-- [Server side application](https://github.com/cacad-ntu/hnr-server.git)
+- [Server side application](https://github.com/cacad-ntu/hnr-server)
 - [Devpost](https://devpost.com/software/dh-hive-io)
