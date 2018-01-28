@@ -74,7 +74,8 @@ ws.onmessage = function(e) {
 			renderSideBar(player_id, hqs, hq_max_hp, towers, tower_max_hp, points, players, population, capacity);
 			break;
 		case 2:
-			alert("DEAD");
+			alert("Game Over! Your final score is: " + payload.points);
+			location.reload();
 	}
 }
 
